@@ -161,10 +161,9 @@ class TailscaleIndicator extends PanelMenu.Button {
 
             const label = `${online}  ${hostname} — ${ipv4}${os ? ` (${os})` : ''}`;
             const item = new PopupMenu.PopupMenuItem(label, { reactive: false });
-            if (peer.Online) {
-                const copyBtn = this._createCopyButton(() => this._copyToClipboard(ipv4));
-                item.add_child(copyBtn);
-            } else {
+            const copyBtn = this._createCopyButton(() => this._copyToClipboard(ipv4));
+            item.add_child(copyBtn);
+            if (!peer.Online) {
                 item.label.style = 'color: #888;';
             }
 
