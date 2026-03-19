@@ -30,10 +30,11 @@ class TailscaleIndicator extends PanelMenu.Button {
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        // IP label in the dropdown (clickable to copy)
-        this._ipItem = new PopupMenu.PopupMenuItem('IP: —');
+        // IP label in the dropdown with copy button
+        this._ipItem = new PopupMenu.PopupMenuItem('IP: —', { reactive: false });
         this._selfIp = null;
-        this._ipItem.connect('activate', () => this._copyToClipboard(this._selfIp));
+        this._ipCopyBtn = this._createCopyButton(() => this._copyToClipboard(this._selfIp));
+        this._ipItem.add_child(this._ipCopyBtn);
         this.menu.addMenuItem(this._ipItem);
 
         // Hostname label
@@ -159,9 +160,11 @@ class TailscaleIndicator extends PanelMenu.Button {
             const online = peer.Online ? '●' : '○';
 
             const label = `${online}  ${hostname} — ${ipv4}${os ? ` (${os})` : ''}`;
-            const item = new PopupMenu.PopupMenuItem(label);
-            item.connect('activate', () => this._copyToClipboard(ipv4));
-            if (!peer.Online) {
+            const item = new PopupMenu.PopupMenuItem(label, { reactive: false });
+            if (peer.Online) {
+                const copyBtn = this._createCopyButton(() => this._copyToClipboard(ipv4));
+                item.add_child(copyBtn);
+            } else {
                 item.label.style = 'color: #888;';
             }
 
@@ -169,6 +172,29 @@ class TailscaleIndicator extends PanelMenu.Button {
             this.menu.addMenuItem(item, this._getMenuPosition(this._machinesSeparator));
             this._peerItems.push(item);
         }
+    }
+
+    _createCopyButton(callback) {
+        const button = new St.Button({
+            style_class: 'tailscale-copy-button',
+            child: new St.Icon({
+                icon_name: 'edit-copy-symbolic',
+                style_class: 'tailscale-copy-icon',
+            }),
+            x_align: 2, // Clutter.ActorAlign.END
+            x_expand: true,
+        });
+        button.connect('clicked', () => {
+            callback();
+            // Brief visual feedback
+            button.child.icon_name = 'object-select-symbolic';
+            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+                if (!button.child) return GLib.SOURCE_REMOVE;
+                button.child.icon_name = 'edit-copy-symbolic';
+                return GLib.SOURCE_REMOVE;
+            });
+        });
+        return button;
     }
 
     _copyToClipboard(text) {
