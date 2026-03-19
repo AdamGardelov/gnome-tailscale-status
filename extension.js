@@ -180,8 +180,6 @@ class TailscaleIndicator extends PanelMenu.Button {
                 icon_name: 'edit-copy-symbolic',
                 style_class: 'tailscale-copy-icon',
             }),
-            x_align: 2, // Clutter.ActorAlign.END
-            x_expand: true,
         });
         button.connect('clicked', () => {
             callback();
