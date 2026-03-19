@@ -1,0 +1,8 @@
+{
+  "name": "Tailscale Status",
+  "description": "Shows Tailscale VPN status, IP addresses, and connected machines in the top panel. Click any IP to copy it to clipboard.",
+  "uuid": "tailscale-status@gardelov.com",
+  "shell-version": ["45", "46", "47", "48"],
+  "version": 1,
+  "url": "https://github.com/AdamGardelov/gnome-tailscale-status"
+}
